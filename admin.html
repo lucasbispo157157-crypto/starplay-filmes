@@ -74,6 +74,13 @@
   }
   .btn-save:hover{transform:translateY(-1px);box-shadow:0 10px 32px rgba(34,211,255,.5)}
   .btn-save:disabled{opacity:.6;cursor:not-allowed}
+  input[readonly], textarea[readonly]{opacity:.6;cursor:not-allowed;background:#0a0f1c}
+  .btn-edit{
+    width:100%;padding:12px;border:1.5px solid var(--cyan);border-radius:12px;cursor:pointer;
+    font-weight:700;font-size:.88rem;color:var(--cyan);background:rgba(34,211,255,.08);
+    display:flex;align-items:center;justify-content:center;gap:8px;transition:.2s;margin-top:8px;
+  }
+  .btn-edit:hover{background:rgba(34,211,255,.16)}
 
   /* Preview Card */
   .preview-box{
@@ -156,32 +163,33 @@
       <div class="panel-title"><span>📥</span> Link de Download do Aplicativo</div>
 
       <label for="apkUrl">URL / Link Direto do APK <small>(obrigatório)</small></label>
-      <textarea id="apkUrl" placeholder="https://seusite.com/arquivos/StarPlay.apk"></textarea>
+      <textarea id="apkUrl" placeholder="https://seusite.com/arquivos/StarPlay.apk" readonly></textarea>
       <div class="hint">Cole o link onde o arquivo .apk está hospedado. Ao clicar em qualquer botão de download do site, o visitante baixará diretamente deste link.</div>
 
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:8px">
         <div>
           <label for="apkNome">Nome do Arquivo</label>
-          <input type="text" id="apkNome" placeholder="StarPlay.apk">
+          <input type="text" id="apkNome" placeholder="StarPlay.apk" readonly>
           <div class="hint">Nome salvo no celular.</div>
         </div>
         <div>
           <label for="versao">Versão do App</label>
-          <input type="text" id="versao" placeholder="v3.2 Oficial">
+          <input type="text" id="versao" placeholder="v3.2 Oficial" readonly>
         </div>
       </div>
 
       <label for="tamanho">Tamanho do Arquivo <small>(ex: 6.2 MB)</small></label>
-      <input type="text" id="tamanho" placeholder="6.2 MB">
+      <input type="text" id="tamanho" placeholder="6.2 MB" readonly>
 
       <!-- SEGURANÇA -->
       <div style="margin-top:18px;padding-top:14px;border-top:1px solid var(--line)">
         <div class="panel-title" style="font-size:1rem"><span>🔒</span> Senha do Painel</div>
         <label for="novaSenha">Trocar senha de administrador <small>(opcional)</small></label>
-        <input type="password" id="novaSenha" placeholder="Digite nova senha para alterar">
+        <input type="password" id="novaSenha" placeholder="Digite nova senha para alterar" readonly>
       </div>
 
-      <button type="button" class="btn-save" id="btnSalvar">💾 SALVAR CONFIGURAÇÕES</button>
+      <button type="button" class="btn-edit" id="btnEditar">✏️ EDITAR</button>
+      <button type="button" class="btn-save hidden" id="btnSalvar">💾 SALVAR CONFIGURAÇÕES</button>
     </div>
 
     <!-- PRÉVIA E TESTE -->
@@ -278,6 +286,21 @@
     $("btnTestDl").download = data.apk_nome || "StarPlay.apk";
   }
 
+  // Editar: libera os campos
+  const camposEdit = ["apkUrl","apkNome","versao","tamanho","novaSenha"];
+  $("btnEditar").addEventListener("click", () => {
+    camposEdit.forEach(id => $(id).removeAttribute("readonly"));
+    $("apkUrl").focus();
+    $("btnEditar").classList.add("hidden");
+    $("btnSalvar").classList.remove("hidden");
+  });
+
+  function travarCampos(){
+    camposEdit.forEach(id => $(id).setAttribute("readonly", true));
+    $("btnSalvar").classList.add("hidden");
+    $("btnEditar").classList.remove("hidden");
+  }
+
   // Teste de download
   $("btnTestDl").addEventListener("click", e => {
     const url = $("apkUrl").value.trim();
@@ -324,6 +347,7 @@
           $("novaSenha").value = "";
         }
         preencherDados(data.config);
+        travarCampos();
         window.scrollTo({top:0, behavior:"smooth"});
       } else {
         $("msgStatus").textContent = "❌ " + (data.erro || "Erro ao salvar.");
