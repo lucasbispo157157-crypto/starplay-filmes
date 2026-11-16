@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>StarPlay Filmes — Painel Admin do Aplicativo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Exo+2:wght@700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#070a12; --card:#0e1526; --card2:#141d34; --line:#1d2946;
+    --cyan:#22d3ff; --blue:#1f6bff; --text:#eef4ff; --muted:#8fa0c2;
+    --ok:#22e3a0; --err:#ff5d7a;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:'Manrope',system-ui,sans-serif;color:var(--text);min-height:100vh;
+    background:
+      radial-gradient(800px 450px at 10% -5%, rgba(31,107,255,.3), transparent 60%),
+      radial-gradient(750px 450px at 105% 25%, rgba(34,211,255,.15), transparent 60%),
+      var(--bg);
+    padding:20px 14px 40px;display:flex;justify-content:center;align-items:flex-start;
+  }
+  .container{width:100%;max-width:880px;margin:0 auto}
+  .header{
+    display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:14px;
+    padding:16px 22px;background:linear-gradient(180deg,var(--card2),var(--card));
+    border:1px solid var(--line);border-radius:18px;margin-bottom:20px;
+    box-shadow:0 10px 30px rgba(0,0,0,.4);
+  }
+  .brand{display:flex;align-items:center;gap:12px}
+  .brand img{height:36px;width:auto}
+  .brand h1{font-size:1.15rem;font-weight:800;letter-spacing:.02em}
+  .brand h1 span{background:linear-gradient(90deg,var(--cyan),var(--blue));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .badge{background:rgba(34,211,255,.12);border:1px solid var(--cyan);color:var(--cyan);font-size:.72rem;padding:3px 8px;border-radius:999px;font-weight:600}
+  .actions{display:flex;gap:10px}
+  .btn-sm{
+    padding:8px 14px;border-radius:10px;border:1px solid var(--line);background:rgba(14,21,38,.8);
+    color:var(--muted);font-size:.82rem;font-weight:600;cursor:pointer;text-decoration:none;
+    display:inline-flex;align-items:center;gap:6px;transition:.2s;
+  }
+  .btn-sm:hover{color:var(--text);border-color:var(--cyan)}
+  .btn-sm.logout{border-color:rgba(255,93,122,.3);color:var(--err)}
+  .btn-sm.logout:hover{background:rgba(255,93,122,.15)}
+
+  .grid{display:grid;grid-template-columns:1fr;gap:20px}
+  @media(min-width:768px){ .grid{grid-template-columns:1.2fr .8fr} }
+
+  .panel{
+    background:linear-gradient(180deg,var(--card2),var(--card));
+    border:1px solid var(--line);border-radius:20px;padding:24px 20px;
+    box-shadow:0 12px 35px rgba(0,0,0,.45);
+  }
+  .panel-title{
+    font-size:1.15rem;font-weight:800;margin-bottom:14px;display:flex;align-items:center;gap:8px;
+  }
+  .panel-title span{color:var(--cyan)}
+
+  label{display:block;font-size:.84rem;font-weight:600;margin:14px 0 6px;color:var(--text)}
+  label small{color:var(--muted);font-weight:400}
+  input, textarea{
+    width:100%;padding:12px 14px;border-radius:12px;border:1.5px solid var(--line);
+    background:#070b16;color:var(--text);font:inherit;font-size:.92rem;outline:none;transition:.2s;
+  }
+  textarea{resize:vertical;min-height:85px;font-family:monospace;font-size:.82rem}
+  input:focus, textarea:focus{border-color:var(--cyan);box-shadow:0 0 0 3px rgba(34,211,255,.15)}
+  .hint{font-size:.76rem;color:var(--muted);margin-top:4px;line-height:1.3}
+
+  .btn-save{
+    width:100%;margin-top:22px;padding:15px;border:0;border-radius:14px;cursor:pointer;
+    font-weight:800;font-size:1.05rem;color:#fff;
+    background:linear-gradient(90deg,#1aa8ff,var(--blue) 60%,#3b3bff);
+    box-shadow:0 8px 25px rgba(31,107,255,.45);transition:.2s;display:flex;align-items:center;justify-content:center;gap:8px;
+  }
+  .btn-save:hover{transform:translateY(-1px);box-shadow:0 10px 32px rgba(34,211,255,.5)}
+  .btn-save:disabled{opacity:.6;cursor:not-allowed}
+
+  /* Preview Card */
+  .preview-box{
+    background:#070b16;border:1px solid var(--line);border-radius:16px;padding:20px;text-align:center;
+  }
+  .preview-badge{font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px}
+  .app-icon{
+    width:70px;height:70px;border-radius:18px;margin:0 auto 12px;background:linear-gradient(135deg,#1f6bff,#22d3ff);
+    display:flex;align-items:center;justify-content:center;font-size:2rem;box-shadow:0 8px 25px rgba(34,211,255,.35);
+  }
+  .app-title{font-size:1.15rem;font-weight:800;margin-bottom:2px}
+  .app-meta{font-size:.8rem;color:var(--muted);margin-bottom:16px}
+
+  .btn-preview-dl{
+    width:100%;padding:13px 18px;border-radius:999px;border:0;cursor:pointer;
+    background:linear-gradient(90deg,#00d2ff,#0070f3);color:#fff;font-weight:700;font-size:.9rem;
+    display:inline-flex;align-items:center;justify-content:center;gap:8px;text-decoration:none;
+    box-shadow:0 6px 20px rgba(0,112,243,.4);
+  }
+  .stat-card{
+    background:rgba(14,21,38,.8);border:1px solid var(--line);border-radius:12px;
+    padding:12px 14px;margin-top:14px;display:flex;justify-content:space-between;align-items:center;
+  }
+  .stat-card span{color:var(--muted);font-size:.82rem}
+  .stat-card b{color:var(--cyan);font-size:1rem}
+
+  /* Modal Login */
+  .modal{
+    position:fixed;inset:0;background:rgba(7,10,18,.88);backdrop-filter:blur(10px);
+    display:flex;align-items:center;justify-content:center;padding:16px;z-index:999;
+  }
+  .modal-box{
+    width:100%;max-width:380px;background:linear-gradient(180deg,var(--card2),var(--card));
+    border:1px solid var(--line);border-radius:20px;padding:28px 22px;text-align:center;
+    box-shadow:0 20px 50px rgba(0,0,0,.7);
+  }
+  .modal-box h2{font-size:1.35rem;font-weight:800;margin-bottom:6px}
+  .modal-box h2 span{background:linear-gradient(90deg,var(--cyan),var(--blue));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .modal-box p{color:var(--muted);font-size:.84rem;margin-bottom:18px}
+  .alert{padding:10px 14px;border-radius:10px;font-size:.82rem;margin-bottom:14px;display:none}
+  .alert.ok{background:rgba(34,227,160,.12);border:1px solid var(--ok);color:var(--ok);display:block}
+  .alert.err{background:rgba(255,93,122,.12);border:1px solid var(--err);color:var(--err);display:block}
+  .hidden{display:none!important}
+</style>
+</head>
+<body>
+
+<!-- MODAL DE LOGIN ADMIN -->
+<div id="modalLogin" class="modal">
+  <div class="modal-box">
+    <h2>Acesso <span>Admin</span></h2>
+    <p>Digite a senha para cadastrar o link do aplicativo APK.</p>
+    <div id="loginErr" class="alert err"></div>
+    <form id="formLogin">
+      <input type="password" id="inputSenha" placeholder="Senha de administrador" autocomplete="current-password" autofocus>
+      <button type="submit" class="btn-save" style="margin-top:14px">ENTRAR NO PAINEL</button>
+    </form>
+  </div>
+</div>
+
+<!-- PAINEL PRINCIPAL -->
+<div class="container hidden" id="adminContent">
+  <header class="header">
+    <div class="brand">
+      <img src="assets/starplay-logo.png" alt="StarPlay">
+      <h1>Admin <span>Aplicativo</span></h1>
+      <span class="badge">APK v3.2</span>
+    </div>
+    <div class="actions">
+      <a href="index.html" target="_blank" class="btn-sm">👁 Ver Site</a>
+      <button type="button" id="btnLogout" class="btn-sm logout">Sair</button>
+    </div>
+  </header>
+
+  <div id="msgStatus" class="alert"></div>
+
+  <div class="grid">
+    <!-- FORMULÁRIO -->
+    <div class="panel">
+      <div class="panel-title"><span>📥</span> Link de Download do Aplicativo</div>
+
+      <label for="apkUrl">URL / Link Direto do APK <small>(obrigatório)</small></label>
+      <textarea id="apkUrl" placeholder="https://seusite.com/arquivos/StarPlay.apk"></textarea>
+      <div class="hint">Cole o link onde o arquivo .apk está hospedado. Ao clicar em qualquer botão de download do site, o visitante baixará diretamente deste link.</div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:8px">
+        <div>
+          <label for="apkNome">Nome do Arquivo</label>
+          <input type="text" id="apkNome" placeholder="StarPlay.apk">
+          <div class="hint">Nome salvo no celular.</div>
+        </div>
+        <div>
+          <label for="versao">Versão do App</label>
+          <input type="text" id="versao" placeholder="v3.2 Oficial">
+        </div>
+      </div>
+
+      <label for="tamanho">Tamanho do Arquivo <small>(ex: 6.2 MB)</small></label>
+      <input type="text" id="tamanho" placeholder="6.2 MB">
+
+      <!-- SEGURANÇA -->
+      <div style="margin-top:18px;padding-top:14px;border-top:1px solid var(--line)">
+        <div class="panel-title" style="font-size:1rem"><span>🔒</span> Senha do Painel</div>
+        <label for="novaSenha">Trocar senha de administrador <small>(opcional)</small></label>
+        <input type="password" id="novaSenha" placeholder="Digite nova senha para alterar">
+      </div>
+
+      <button type="button" class="btn-save" id="btnSalvar">💾 SALVAR CONFIGURAÇÕES</button>
+    </div>
+
+    <!-- PRÉVIA E TESTE -->
+    <div>
+      <div class="panel">
+        <div class="panel-title"><span>📱</span> Teste do Botão de Download</div>
+        <div class="preview-box">
+          <div class="preview-badge">BOTÃO OFICIAL DO SITE</div>
+          <div class="app-icon">⭐</div>
+          <div class="app-title">StarPlay Android</div>
+          <div class="app-meta" id="prevMeta">Versão v3.2 · 6.2 MB</div>
+
+          <a href="#" id="btnTestDl" class="btn-preview-dl">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            TESTAR DOWNLOAD AGORA
+          </a>
+          <div class="hint" style="margin-top:10px">Clique para testar se o link configurado está funcionando no seu navegador.</div>
+
+          <div class="stat-card">
+            <span>Downloads registrados:</span>
+            <b id="prevCount">52.430</b>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  let adminSenha = sessionStorage.getItem("sp_filmes_admin_key") || localStorage.getItem("sp_filmes_admin_key") || "";
+  const $ = id => document.getElementById(id);
+
+  // Login
+  $("formLogin").addEventListener("submit", async e => {
+    e.preventDefault();
+    const s = $("inputSenha").value.trim();
+    if(!s) return;
+    $("loginErr").style.display = "none";
+    try{
+      const res = await fetch("/api/config", {
+        headers: { "x-admin-key": s }
+      });
+      const data = await res.json();
+      if(data.isAdmin){
+        adminSenha = s;
+        sessionStorage.setItem("sp_filmes_admin_key", s);
+        localStorage.setItem("sp_filmes_admin_key", s);
+        $("modalLogin").classList.add("hidden");
+        $("adminContent").classList.remove("hidden");
+        preencherDados(data);
+      } else {
+        $("loginErr").textContent = "Senha incorreta. Tente novamente.";
+        $("loginErr").style.display = "block";
+      }
+    }catch(err){
+      $("loginErr").textContent = "Erro ao conectar com o servidor.";
+      $("loginErr").style.display = "block";
+    }
+  });
+
+  $("btnLogout").addEventListener("click", () => {
+    sessionStorage.removeItem("sp_filmes_admin_key");
+    localStorage.removeItem("sp_filmes_admin_key");
+    location.reload();
+  });
+
+  async function carregarDados(){
+    if(!adminSenha) return;
+    try{
+      const res = await fetch("/api/config", {
+        headers: { "x-admin-key": adminSenha }
+      });
+      const data = await res.json();
+      if(data.isAdmin){
+        $("modalLogin").classList.add("hidden");
+        $("adminContent").classList.remove("hidden");
+        preencherDados(data);
+      } else {
+        $("modalLogin").classList.remove("hidden");
+      }
+    }catch(e){
+      $("modalLogin").classList.remove("hidden");
+    }
+  }
+
+  function preencherDados(data){
+    $("apkUrl").value = data.apk_url || "";
+    $("apkNome").value = data.apk_nome || "StarPlay.apk";
+    $("versao").value = data.versao || "v3.2";
+    $("tamanho").value = data.tamanho || "6.2 MB";
+    $("prevMeta").textContent = "Versão " + (data.versao || "v3.2") + " · " + (data.tamanho || "6.2 MB");
+    $("prevCount").textContent = Number(data.downloads_count || 52430).toLocaleString("pt-BR");
+    $("btnTestDl").href = data.apk_url || "#";
+    $("btnTestDl").download = data.apk_nome || "StarPlay.apk";
+  }
+
+  // Teste de download
+  $("btnTestDl").addEventListener("click", e => {
+    const url = $("apkUrl").value.trim();
+    if(!url || url === "#"){
+      e.preventDefault();
+      alert("Configure um link de APK válido primeiro.");
+    }
+  });
+
+  // Salvar
+  $("btnSalvar").addEventListener("click", async () => {
+    const btn = $("btnSalvar");
+    btn.disabled = true;
+    btn.textContent = "⏳ Salvando...";
+    $("msgStatus").style.display = "none";
+
+    const payload = {
+      admin_senha_atual: adminSenha,
+      apk_url: $("apkUrl").value,
+      apk_nome: $("apkNome").value,
+      versao: $("versao").value,
+      tamanho: $("tamanho").value,
+      nova_admin_senha: $("novaSenha").value
+    };
+
+    try{
+      const res = await fetch("/api/config", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-admin-key": adminSenha
+        },
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+      if(data.ok){
+        $("msgStatus").textContent = "✅ " + data.mensagem;
+        $("msgStatus").className = "alert ok";
+        $("msgStatus").style.display = "block";
+        if(payload.nova_admin_senha){
+          adminSenha = payload.nova_admin_senha;
+          sessionStorage.setItem("sp_filmes_admin_key", adminSenha);
+          localStorage.setItem("sp_filmes_admin_key", adminSenha);
+          $("novaSenha").value = "";
+        }
+        preencherDados(data.config);
+        window.scrollTo({top:0, behavior:"smooth"});
+      } else {
+        $("msgStatus").textContent = "❌ " + (data.erro || "Erro ao salvar.");
+        $("msgStatus").className = "alert err";
+        $("msgStatus").style.display = "block";
+      }
+    }catch(e){
+      $("msgStatus").textContent = "❌ Erro ao salvar dados no servidor.";
+      $("msgStatus").className = "alert err";
+      $("msgStatus").style.display = "block";
+    }finally{
+      btn.disabled = false;
+      btn.textContent = "💾 SALVAR CONFIGURAÇÕES";
+    }
+  });
+
+  carregarDados();
+</script>
+</body>
+</html>
