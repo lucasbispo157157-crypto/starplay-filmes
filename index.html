@@ -142,7 +142,7 @@
 
   // Hook all download buttons
   document.addEventListener("DOMContentLoaded", () => {
-    document.querySelectorAll(".btn-download, button:has(svg), a[href*="#"]").forEach(el => {
+    document.querySelectorAll('.btn-download, button:has(svg), a[href*="#"]').forEach(el => {
       const text = el.textContent || "";
       if(text.includes("Baixar") || text.includes("Download") || el.classList.contains("btn-download")){
         el.addEventListener("click", iniciarDownload);
